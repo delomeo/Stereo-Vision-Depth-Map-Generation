@@ -32,36 +32,41 @@ def main():
     # Read the images
     imgL_path = ROOT_DIR + imgL_filename
     imgR_path = ROOT_DIR + imgR_filename
-
+    print('-' * 30)    
+    print('Reading images...')
     imgL = read_image(imgL_path)
     imgR = read_image(imgR_path)
-
+    print('-' * 30)
     # Read the disparity maps
     disp0_path = ROOT_DIR + disp0_filename
     disp1_path = ROOT_DIR + disp1_filename
 
+    print('Reading disparity maps...')
     disp0, disp0_scale = read_disparity(disp0_path)
     disp1, disp1_scale = read_disparity(disp1_path)
+    print('-' * 30)
 
     # Pack an LR StereoObject
     artroomLR = ImageLR(imgL, imgR)
 
-    print('computing disparity...')
+    print('Computing disparity...')
     disp = compute_disparity(artroomLR)
 
     print('Done!')
-    
+    print('-' * 30)
+
     # Compute metrics
-    print('computing metrics...')
+    print('Computing metrics...')
     mae_value_left = mae(disp, disp0)
     rmse_value_left = rmse(disp, disp0)
 
     mae_value_right = mae(disp, disp1)
     rmse_value_right = rmse(disp, disp1)
-
+    print('Done!')
+    print('-' * 30)
     print(f'MAE Left: {mae_value_left}')
     print(f'MAE Right: {mae_value_right}')
-    
+    print('-' * 30)
     print(f'RMSE Left: {rmse_value_left}')
     print(f'RMSE Right: {rmse_value_right}')
     
