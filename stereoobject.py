@@ -14,9 +14,7 @@ def compute_disparity(image_pairs: ImageLR, **params) -> np.array:
     Computes the disparity map using StereoSGBM.
 
     :param image_pairs: An ImageLR object containing left and right images.
-    :param min_disp: Minimum disparity value.
-    :param num_disp: Number of disparities (must be divisible by 16).
-    :param window_size: Size of the block window (must be odd).
+    :param params: Parameters for StereoSGBM.
     :return: Disparity map as a numpy array.
     """
     # Check if type is correct

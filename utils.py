@@ -57,3 +57,10 @@ def read_disparity(disp_path) -> np.array:
     if np.isinf(data).any():
         data[data == np.inf] = -1  # Handle infinite values
     return np.reshape(data, shape), scale
+def show_object_depth_map(image_pairs: ImageLR, disparity: np.array) -> None:
+    """
+    Displays the left image and the computed disparity map side by side.
+    
+    :param image_pairs: An ImageLR object containing left and right images.
+    :param disparity: The computed disparity map.
+    """
