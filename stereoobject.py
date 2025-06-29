@@ -9,7 +9,7 @@ class ImageLR:
     left: np.array
     right: np.array
 
-def compute_disparity(image_pairs: ImageLR, min_disp: int = 0, num_disp: int = 16 * 15, window_size: int = 7) -> np.array:
+def compute_disparity(image_pairs: ImageLR, **params) -> np.array:
     """
     Computes the disparity map using StereoSGBM.
 
