@@ -2,7 +2,7 @@
 import numpy as np
 import cv2 as cv
 import re
-
+from stereoobject import ImageLR
 def read_image(image_path) -> np.array: 
     """
     Reads an image from the specified path.
@@ -57,6 +57,7 @@ def read_disparity(disp_path) -> np.array:
     if np.isinf(data).any():
         data[data == np.inf] = -1  # Handle infinite values
     return np.reshape(data, shape), scale
+
 def show_object_depth_map(image_pairs: ImageLR, disparity: np.array) -> None:
     """
     Displays the left image and the computed disparity map side by side.
@@ -64,3 +65,9 @@ def show_object_depth_map(image_pairs: ImageLR, disparity: np.array) -> None:
     :param image_pairs: An ImageLR object containing left and right images.
     :param disparity: The computed disparity map.
     """
+    if not isinstance(image_pairs, ImageLR):
+        raise TypeError("Image Pairs must always be passed as a Stereo Object!")
+    
+    cv.imshow('Disparity Map', cv.normalize(disparity, None, 0, 255, cv.NORM_MINMAX).astype(np.uint8))
+    cv.waitKey(0)
+    cv.destroyAllWindows()
