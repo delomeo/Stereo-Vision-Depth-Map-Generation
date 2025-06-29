@@ -5,6 +5,7 @@ import re
 import matplotlib.pyplot as plt
 from stereoobject import ImageLR, show_image_pairs, compute_disparity
 from utils import read_image, read_disparity
+from metrics import mae, rmse
 
     
 def main():
@@ -47,8 +48,23 @@ def main():
     artroomLR = ImageLR(imgL, imgR)
 
     print('computing disparity...')
-    compute_disparity(artroomLR)
+    disp = compute_disparity(artroomLR)
 
+    print('Done!')
+    
+    # Compute metrics
+    print('computing metrics...')
+    mae_value_left = mae(disp, disp0)
+    rmse_value_left = rmse(disp, disp0)
+
+    mae_value_right = mae(disp, disp1)
+    rmse_value_right = rmse(disp, disp1)
+
+    print(f'MAE Left: {mae_value_left}')
+    print(f'MAE Right: {mae_value_right}')
+    
+    print(f'RMSE Left: {rmse_value_left}')
+    print(f'RMSE Right: {rmse_value_right}')
     
 if __name__ == "__main__":
     main()
