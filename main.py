@@ -40,10 +40,9 @@ def main():
     disp0_path = ROOT_DIR + disp0_filename
     disp1_path = ROOT_DIR + disp1_filename
 
-    disp0 = read_disparity(disp0_path)
-    disp1 = read_disparity(disp1_path)
+    disp0, disp0_scale = read_disparity(disp0_path)
+    disp1, disp1_scale = read_disparity(disp1_path)
 
-     
     # Pack an LR StereoObject
     artroomLR = ImageLR(imgL, imgR)
 
