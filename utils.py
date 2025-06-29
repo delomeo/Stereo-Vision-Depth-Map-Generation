@@ -53,4 +53,7 @@ def read_disparity(disp_path) -> np.array:
 
     data = np.fromfile(file, endian + 'f')
     shape = (height, width, 3) if color else (height, width)
+
+    if np.isinf(data).any():
+        data[data == np.inf] = -1  # Handle infinite values
     return np.reshape(data, shape), scale
