@@ -141,4 +141,16 @@ class StereoSGBMParameterTuner:
         """
         error_left = mae(disp, disp0)
         error_right = mae(disp, disp1)
-        return (error_left + error_right) / 2
+        return (error_left + error_right) / 2    def _store_results(self, best_params, best_error):
+        """
+        Store the best parameters and error in a file.
+        
+        :param best_params: Best parameters found.
+        :param best_error: Corresponding error for the best parameters.
+        """
+        with open(f'results_{self.metric}.txt', 'a', encoding='utf-8') as f:
+            f
+            f.write(f"Best Parameters: {best_params}\n")
+            f.write(f"Best Error: {best_error}\n")
+        if self.verbose:
+            print(f"Best Parameters: {best_params}, Best Error: {best_error}")
