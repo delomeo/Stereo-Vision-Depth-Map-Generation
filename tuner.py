@@ -10,9 +10,7 @@ class StereoSGBMParameterTuner:
     """
     Class to tune StereoSGBM parameters using grid search.
     """
-
-
-    def __init__(self, param_grid, metric='mae', verbose=True):
+    def __init__(self, param_grid, method='grid', metric='mae', verbose=True, save_results=True):
         """
         Initialize the tuner with a parameter grid.
         
@@ -21,6 +19,8 @@ class StereoSGBMParameterTuner:
         self.param_grid = param_grid
         self.metric = metric
         self.verbose = verbose
+        self.save_results = save_results
+        self.method = method 
 
     def tune(self, stereo_obj, disp0, disp1):
         """
@@ -32,6 +32,8 @@ class StereoSGBMParameterTuner:
         :param disp1: Ground truth disparity for right image.
         :return: Best parameters and their corresponding error.
         """
+
+        error = None
         best_params = None
         best_error = float('inf')
 
@@ -65,7 +67,7 @@ class StereoSGBMParameterTuner:
             }
             disp = self.compute_disparity(stereo_obj, **params)
             if disp is None:
-                continue
+                return float('inf')
 
             if self.metric == 'rmse':
                 error = self._use_rmse(disp, disp0, disp1)
@@ -76,10 +78,10 @@ class StereoSGBMParameterTuner:
             if self.verbose:
                 # Print the parameters and error for each iteration
                 print(f"Parameters: {params}, Error: {error}")
-            if error < best_error:
-                best_error = error
-                best_params = params
-        return best_params, best_error
+            if self.save_results:
+                self._store_results(params, error)  
+            return error
+        
         # Run the optimization
         study.optimize(lambda trial: objective(trial, stereo_obj, disp0, disp1), n_trials=100, n_jobs=-1, show_progress_bar=self.verbose)
         
@@ -141,7 +143,9 @@ class StereoSGBMParameterTuner:
         """
         error_left = mae(disp, disp0)
         error_right = mae(disp, disp1)
-        return (error_left + error_right) / 2    def _store_results(self, best_params, best_error):
+        return (error_left + error_right) / 2
+    
+    def _store_results(self, best_params, best_error):
         """
         Store the best parameters and error in a file.
         
