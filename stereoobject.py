@@ -16,6 +16,7 @@ def compute_disparity(image_pairs: ImageLR, **params) -> np.array:
     :param image_pairs: An ImageLR object containing left and right images.
     :param params: Parameters for StereoSGBM.
     :return: Disparity map as a numpy array.
+    :raises TypeError: If image_pairs is not an instance of ImageLR.
     """
     # Check if type is correct
     if not isinstance(image_pairs, ImageLR): 
@@ -23,17 +24,22 @@ def compute_disparity(image_pairs: ImageLR, **params) -> np.array:
     
     # Create StereoSGBM object
     stereo = cv.StereoSGBM_create(
-        minDisparity=min_disp,
-        numDisparities=num_disp,
-        blockSize=window_size,
-        P1=8 * 3 * window_size ** 2,
-        P2=32 * 3 * window_size ** 2,
-        disp12MaxDiff=1,
-        uniquenessRatio=10,
-        speckleWindowSize=100,
-        speckleRange=32,
-        preFilterCap=63
+        minDisparity=params.get('minDisparity', 0),
+        numDisparities=params.get('numDisparities', 16),
+        blockSize=params.get('blockSize', 5),
+        P1=params.get('P1', 8 * 3 * 5 ** 2),
+        P2=params.get('P2', 32 * 3 * 5 ** 2),
+        disp12MaxDiff=params.get('disp12MaxDiff', 1),   
+        uniquenessRatio=params.get('uniquenessRatio', 10),
+        speckleWindowSize=params.get('speckleWindowSize', 50),
+        speckleRange=params.get('speckleRange', 1),
+        mode=cv.STEREO_SGBM_MODE_SGBM_3WAY if params.get('mode', 'SGBM_3WAY') == 'SGBM_3WAY' else cv.STEREO_SGBM_MODE_SGBM
     )
+
+    print("Using StereoSGBM with parameters:")
+    # Get parameters from StereoSGBM object
+    for key, value in stereo.getParams().items():
+        print(f"{key}: {value}")
     
     # Compute disparity map
     disparity = stereo.compute(image_pairs.left, image_pairs.right).astype(np.float32) / 16.0
