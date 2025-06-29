@@ -34,10 +34,36 @@ class StereoSGBMParameterTuner:
         """
         best_params = None
         best_error = float('inf')
-        error = None
 
-        for params in ParameterGrid(self.param_grid):
-            disp = compute_disparity(stereo_obj, **params)
+        if self.method == 'grid':
+            study = optuna.create_study(sampler=optuna.samplers.GridSampler(self.param_grid))
+        elif self.method == 'tpe':
+            study = optuna.create_study(sampler=optuna.samplers.TPESampler(self.param_grid))
+        elif self.method == 'cmaes':
+            study = optuna.create_study(sampler=optuna.samplers.CmaEsSampler(self.param_grid))
+        elif self.method == 'nsga2':
+            study = optuna.create_study(sampler=optuna.samplers.NSGAIISampler(self.param_grid))
+        elif self.method == 'random':
+            study = optuna.create_study(sampler=optuna.samplers.RandomSampler(self.param_grid))
+        else:
+            raise ValueError(f"Unknown method: {self.method}")
+        
+        def objective(trial, stereo_obj, disp0, disp1):
+
+            error = None
+            params = {
+                'minDisparity': trial.suggest_int('minDisparity', 0, 32),
+                'numDisparities': trial.suggest_int('numDisparities', 16, 128, step=16),
+                'blockSize': trial.suggest_int('blockSize', 5, 21, step=2),
+                'P1': trial.suggest_int('P1', 8 * 3 * 5 ** 2, 8 * 3 * 21 ** 2),
+                'P2': trial.suggest_int('P2', 32 * 3 * 5 ** 2, 32 * 3 * 21 ** 2),
+                'disp12MaxDiff': trial.suggest_int('disp12MaxDiff', 1, 10),
+                'uniquenessRatio': trial.suggest_int('uniquenessRatio', 5, 20),
+                'speckleWindowSize': trial.suggest_int('speckleWindowSize', 50, 200),
+                'speckleRange': trial.suggest_int('speckleRange', 1, 50),
+                'mode': trial.suggest_categorical('mode', ['SGBM_3WAY', 'SGBM'])
+            }
+            disp = self.compute_disparity(stereo_obj, **params)
             if disp is None:
                 continue
 
@@ -54,6 +80,11 @@ class StereoSGBMParameterTuner:
                 best_error = error
                 best_params = params
         return best_params, best_error
+        # Run the optimization
+        study.optimize(lambda trial: objective(trial, stereo_obj, disp0, disp1), n_trials=100, n_jobs=-1, show_progress_bar=self.verbose)
+        
+        return study.best_params, study.best_value
+        
     
     def _use_rmse(self, disp, disp0, disp1):
         """
