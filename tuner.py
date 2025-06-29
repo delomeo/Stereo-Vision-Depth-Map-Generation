@@ -10,7 +10,7 @@ class StereoSGBMParameterTuner:
     """
 
 
-    def __init__(self, param_grid, metric='mae'):
+    def __init__(self, param_grid, metric='mae', verbose=True):
         """
         Initialize the tuner with a parameter grid.
         
@@ -18,6 +18,7 @@ class StereoSGBMParameterTuner:
         """
         self.param_grid = param_grid
         self.metric = metric
+        self.verbose = verbose
 
     def tune(self, stereo_obj, disp0, disp1):
         """
@@ -44,7 +45,9 @@ class StereoSGBMParameterTuner:
                 error = self._use_mae(disp, disp0, disp1)
             else:
                 raise ValueError(f"Unknown metric: {self.metric}")
-            print(f"Parameters: {params}, Error: {error}")
+            if self.verbose:
+                # Print the parameters and error for each iteration
+                print(f"Parameters: {params}, Error: {error}")
             if error < best_error:
                 best_error = error
                 best_params = params
